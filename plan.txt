@@ -1,0 +1,29 @@
+1. make a timetable
+    dictionary - for each day with classes
+
+
+2. discord-webhook
+    integrate discord to notify when
+    there is a class scheduled,
+    we attend a class,
+    leave a class
+    or if we fail to attend the class
+
+3. Selenium
+    go to the teams link
+    chech if logged out
+        login
+    go to the team to take class
+    wait for join button for 20 minutes
+    if no join button exit
+
+    after join button
+        check for camera and microphone button
+        turn them off
+        join class
+    
+    leave class at 5 minutes later then the class time
+    sleep untill next class in timetable
+
+4. host on virtual instace on cloud
+    microsoft azure or google cloud
