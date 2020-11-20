@@ -1,3 +1,4 @@
+from os import rmdir
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -42,15 +43,13 @@ def login():
     global driver
     # enter email and click on login
     driver.find_element(By.NAME, 'loginfmt').send_keys(email)
-    time.sleep(5)
     driver.find_element(By.ID, 'idSIButton9').click()
-    time.sleep(5)
+    time.sleep(3)
 
     # enter password and click on login
     driver.find_element(By.NAME, 'passwd').send_keys(pas)
-    time.sleep(5)
     driver.find_element(By.ID, 'idSIButton9').click()
-    time.sleep(5)
+    time.sleep(3)
 
     # clicks on button where it asks to remeber the user
     # clicks on no to have the consistency in each instance of login
@@ -64,7 +63,6 @@ def login():
 def join(clas):
     global driver
 
-    time.sleep(5)
     driver.find_element(By.XPATH, f"//*[contains(text(),'{clas}')]").click()
     time.sleep(5)
     try:
@@ -73,27 +71,34 @@ def join(clas):
     except:
         print('No join link')
 
-    time.sleep(10)
+    time.sleep(5)
 
     camera = driver.find_element(
         By.XPATH, '//toggle-button[@text = "Enable video"]')
     if camera.get_attribute('title') == 'Turn camera off':
         camera.click()
-    time.sleep(5)
+    time.sleep(3)
 
     microphone = driver.find_element(By.ID, 'preJoinAudioButton')
     if microphone.get_attribute('title') == 'Mute microphone':
         microphone.click()
-    time.sleep(5)
+    time.sleep(2)
 
     driver.find_element(
         By.XPATH, '//*[@id="page-content-wrapper"]/div[1]/div/calling-pre-join-screen/div/div/div[2]/div[1]/div[2]/div/div/section/div[1]/div/div/button').click()
-    time.sleep(3600)
-    leave_class()
+    time.sleep(2)
 
 
 def leave_class():
     global driver
+
+    # end meeting
+    time.sleep(5)
+    driver.find_element(By.ID, 'hangup-button').click()
+    time.sleep(5)
+    # go to home page
+    driver.find_element(
+        By.XPATH, '//*[@id="app-bar-2a84919f-59d8-4441-a975-2a8c2643b741"]').click()
 
 
 def main():
@@ -103,11 +108,18 @@ def main():
 
     if 'login' in driver.current_url:
         login()
+        time.sleep(3)
+
     day = get_day()
-    clas = classes(day)
-    for c in clas:
+    schedule_today = classes('test')
+    for c in schedule_today:
         print(c[0])
         join(c[0])
+        #duration in seconds
+        duration = (c[2] - c[1])*5
+        time.sleep(duration)
+        leave_class()
+    driver.quit()
 
 
 main()
