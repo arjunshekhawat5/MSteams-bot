@@ -1,10 +1,10 @@
-from os import rmdir
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
 from datetime import date, datetime
 from schedule import classes
+from discord_notify import notify_status
 
 
 def get_day():
@@ -70,6 +70,7 @@ def join(clas):
             By.XPATH, '//*[@title="Join call with video"]').click()
     except:
         print('No join link')
+        return False
 
     time.sleep(5)
 
@@ -87,6 +88,7 @@ def join(clas):
     driver.find_element(
         By.XPATH, '//*[@id="page-content-wrapper"]/div[1]/div/calling-pre-join-screen/div/div/div[2]/div[1]/div[2]/div/div/section/div[1]/div/div/button').click()
     time.sleep(2)
+    return True
 
 
 def leave_class():
@@ -114,11 +116,15 @@ def main():
     schedule_today = classes('test')
     for c in schedule_today:
         print(c[0])
-        join(c[0])
+        status = join(c[0])
+        notify_status('Join',c[0], status)
         #duration in seconds
         duration = (c[2] - c[1])*5
         time.sleep(duration)
+
         leave_class()
+        notify_status('Leave', c[0])
+        
     driver.quit()
 
 

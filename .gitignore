@@ -4,5 +4,6 @@ creds.txt
 geckodriver.log
 __pycache__
 debug.log
+.vscode
 =======
 >>>>>>> fa641c2ef55b59e5d9430e893e4c4067583fff9e
