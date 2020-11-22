@@ -9,6 +9,8 @@ from discord_notify import notify, notify_status
 PATH = '/home/kali/Downloads/geckodriver'
 driver = webdriver.Firefox(executable_path=PATH)
 '''
+#PATH = '/home/arjun/Downloads/chromedriver'
+
 url = "https://teams.microsoft.com/"
 with open('creds.txt', 'r') as creds:
     creds = creds.read().split()
@@ -29,7 +31,7 @@ def get_driver():
         "profile.default_content_setting_values.notifications": 1
     },)
     opt.add_experimental_option('excludeSwitches', ['enable-logging'])
-    return webdriver.Chrome(options=opt)
+    return webdriver.Chrome(executable_path=PATH, options=opt)
 
 
 
