@@ -4,7 +4,33 @@ from selenium.webdriver.common.by import By
 import time
 from datetime import date, datetime
 from schedule import classes
-from discord_notify import notify_status
+from discord_notify import notify, notify_status
+'''
+PATH = '/home/kali/Downloads/geckodriver'
+driver = webdriver.Firefox(executable_path=PATH)
+'''
+url = "https://teams.microsoft.com/"
+with open('creds.txt', 'r') as creds:
+    creds = creds.read().split()
+    email = creds[0]
+    pas = creds[1]
+def get_driver():
+    opt = webdriver.ChromeOptions()
+    opt.add_argument("--disable-infobars")
+    opt.add_argument("start-maximized")
+    opt.add_argument("--disable-extensions")
+
+    # opt.add_argument("--start-maximized")
+    # Pass the argument 1 to allow and 2 to block permissions
+    opt.add_experimental_option("prefs", {
+        "profile.default_content_setting_values.media_stream_mic": 1,
+        "profile.default_content_setting_values.media_stream_camera": 1,
+        "profile.default_content_setting_values.geolocation": 1,
+        "profile.default_content_setting_values.notifications": 1
+    },)
+    opt.add_experimental_option('excludeSwitches', ['enable-logging'])
+    return webdriver.Chrome(options=opt)
+
 
 
 def get_day():
@@ -13,30 +39,6 @@ def get_day():
 
 def get_time():
     return datetime.now().time()
-
-
-opt = webdriver.ChromeOptions()
-opt.add_argument("--disable-infobars")
-opt.add_argument("start-maximized")
-opt.add_argument("--disable-extensions")
-
-# opt.add_argument("--start-maximized")
-# Pass the argument 1 to allow and 2 to block permissions
-opt.add_experimental_option("prefs", {
-    "profile.default_content_setting_values.media_stream_mic": 1,
-    "profile.default_content_setting_values.media_stream_camera": 1,
-    "profile.default_content_setting_values.geolocation": 1,
-    "profile.default_content_setting_values.notifications": 1
-},)
-opt.add_experimental_option('excludeSwitches', ['enable-logging'])
-
-driver = webdriver.Chrome(options=opt)
-
-url = "https://teams.microsoft.com/"
-with open('creds.txt', 'r') as creds:
-    creds = creds.read().split()
-    email = creds[0]
-    pas = creds[1]
 
 
 def login():
@@ -53,23 +55,40 @@ def login():
 
     # clicks on button where it asks to remeber the user
     # clicks on no to have the consistency in each instance of login
-    driver.find_element(By.ID, 'idBtn_Back').click()
-    time.sleep(5)
-
+    driver.find_element(By.ID, 'KmsiCheckboxField').click()
+    driver.find_element(By.ID, 'idSIButton9').click()
+    time.sleep(10)
+    #idBtn_Back
     # proceeds onto website when asked to continue on app
     driver.find_element(By.CLASS_NAME, 'use-app-lnk').click()
 
 
-def join(clas):
+def join_button():
     global driver
+    t = 3
+    while t > 0:
+        try:
+            time.sleep(5)
+            driver.find_element(By.XPATH, '//*[@title="Join call with video"]').click()
+            return True
+        except:
+            t -= 1
+            driver.refresh()
+            print('no join button')
+            time.sleep(30)
 
-    driver.find_element(By.XPATH, f"//*[contains(text(),'{clas}')]").click()
+    return False
+
+def join(sub):
+    global driver
+    time_now = get_time()
+    #driver.find_element(By.XPATH,f'//*[@title="{sub}"]').click()
+    driver.find_element(By.XPATH, f"//*[contains(text(),'{sub}')]").click()
     time.sleep(5)
-    try:
-        driver.find_element(
-            By.XPATH, '//*[@title="Join call with video"]').click()
-    except:
-        print('No join link')
+    if not join_button():
+        txt = f"Could not join class for {sub} till {time_now}."
+        notify(txt, sub)
+        print(txt)
         return False
 
     time.sleep(5)
@@ -88,23 +107,49 @@ def join(clas):
     driver.find_element(
         By.XPATH, '//*[@id="page-content-wrapper"]/div[1]/div/calling-pre-join-screen/div/div/div[2]/div[1]/div[2]/div/div/section/div[1]/div/div/button').click()
     time.sleep(2)
+    txt = f"Joined class for {sub}, on {time_now}."
+    print(txt)
+    notify(txt, sub)
     return True
 
 
-def leave_class():
+def leave_class(sub):
     global driver
-
+    print("leaving class")
+    #time_now = get_time()
     # end meeting
     time.sleep(5)
-    driver.find_element(By.ID, 'hangup-button').click()
-    time.sleep(5)
+    try:
+        driver.find_element_by_class('user-avatar').click()
+        time.sleep(1)
+        driver.find_element(By.XPATH, '//*[@id="hangup-button"]').click()
+        time.sleep(5)
+        driver.find_element(By.XPATH, '//*[@id="app-bar-2a84919f-59d8-4441-a975-2a8c2643b741"]').click()
+    except:
+        txt = f"Could not leave meeting for {sub} on {get_time()}."
+        notify(txt, sub)
+        return
     # go to home page
-    driver.find_element(
-        By.XPATH, '//*[@id="app-bar-2a84919f-59d8-4441-a975-2a8c2643b741"]').click()
+    
+    txt = f"Left meeting for {sub}, on {get_time()}"
+    notify(txt, sub)
+    return
 
 
 def main():
     global driver
+    day = get_day()
+    schedule_today = classes('test')
+    schedule_today = [['Azad', 10, 11], ["Biomolecular NMR", 11, 12]]
+
+    if not schedule_today:
+        txt = 'No classes scheduled for today!'
+        notify(txt)
+        print(txt)
+        return
+    
+    
+    driver = get_driver()
     driver.get(url)
     time.sleep(5)
 
@@ -112,18 +157,22 @@ def main():
         login()
         time.sleep(3)
 
-    day = get_day()
-    schedule_today = classes('test')
-    for c in schedule_today:
-        print(c[0])
-        status = join(c[0])
-        notify_status('Join',c[0], status)
+    for event in schedule_today:
+        sub = event[0]
+        start_time, end_time = event[1], event[2]
         #duration in seconds
-        duration = (c[2] - c[1])*5
-        time.sleep(duration)
+        duration = (end_time - start_time)*30
+        print(sub)
+        status = join(sub)
+        #notify_status('Join',c[0], status)
+        if not status:
+            print('Goint to wait for 45 minutes.')
+            time.sleep(45*60)
+            continue
+        else:
+            time.sleep(duration)
 
-        leave_class()
-        notify_status('Leave', c[0])
+        leave_class(sub)
         
     driver.quit()
 
