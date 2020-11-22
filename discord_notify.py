@@ -7,7 +7,7 @@ hook = Webhook(url)
 
 goujo = 'https://i.imgur.com/rsWkrgB.gif'
 jojo = 'https://i.imgur.com/XnzcljA.gif'
-bot = 'https://imgur.com/gallery/dkRJO'
+bot = 'https://i.imgur.com/RFk9hgO.gif'
 
 def get_embed(txt, subject):
     global embed

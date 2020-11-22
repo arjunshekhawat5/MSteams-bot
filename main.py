@@ -19,7 +19,7 @@ def get_driver():
     opt.add_argument("--disable-infobars")
     opt.add_argument("start-maximized")
     opt.add_argument("--disable-extensions")
-
+    opt.add_argument("headless")
     # opt.add_argument("--start-maximized")
     # Pass the argument 1 to allow and 2 to block permissions
     opt.add_experimental_option("prefs", {
@@ -43,6 +43,7 @@ def get_time():
 
 def login():
     global driver
+    print("Logging in...")
     # enter email and click on login
     driver.find_element(By.NAME, 'loginfmt').send_keys(email)
     driver.find_element(By.ID, 'idSIButton9').click()
@@ -65,28 +66,31 @@ def login():
 
 def join_button():
     global driver
-    t = 3
+    t = 15
     while t > 0:
         try:
             time.sleep(5)
             driver.find_element(By.XPATH, '//*[@title="Join call with video"]').click()
             return True
         except:
+            print('Waiting for class to start....')
             t -= 1
+            time.sleep(60)
             driver.refresh()
-            print('no join button')
-            time.sleep(30)
-
     return False
 
 def join(sub):
     global driver
-    time_now = get_time()
+
+    #this code is for finding the team in list view
     #driver.find_element(By.XPATH,f'//*[@title="{sub}"]').click()
+
+    #we find the team in grid view
     driver.find_element(By.XPATH, f"//*[contains(text(),'{sub}')]").click()
-    time.sleep(5)
+    time.sleep(3)
+
     if not join_button():
-        txt = f"Could not join class for {sub} till {time_now}."
+        txt = f"Could not join class for {sub} till {get_time()}."
         notify(txt, sub)
         print(txt)
         return False
@@ -97,17 +101,20 @@ def join(sub):
         By.XPATH, '//toggle-button[@text = "Enable video"]')
     if camera.get_attribute('title') == 'Turn camera off':
         camera.click()
-    time.sleep(3)
+    time.sleep(1)
 
     microphone = driver.find_element(By.ID, 'preJoinAudioButton')
     if microphone.get_attribute('title') == 'Mute microphone':
         microphone.click()
     time.sleep(2)
 
+    #joining class
     driver.find_element(
         By.XPATH, '//*[@id="page-content-wrapper"]/div[1]/div/calling-pre-join-screen/div/div/div[2]/div[1]/div[2]/div/div/section/div[1]/div/div/button').click()
     time.sleep(2)
-    txt = f"Joined class for {sub}, on {time_now}."
+
+
+    txt = f"Joined class for {sub}, on {get_time()}."
     print(txt)
     notify(txt, sub)
     return True
@@ -117,23 +124,29 @@ def leave_class(sub):
     global driver
     print("leaving class")
     #time_now = get_time()
+    
+    
     # end meeting
-    time.sleep(5)
+    time.sleep(3)
     try:
-        driver.find_element_by_class('user-avatar').click()
+        driver.find_element_by_class_name("ts-calling-screen").click()
+        driver.find_element_by_xpath('//*[@id="teams-app-bar"]/ul/li[3]').click() #come back to homepage
         time.sleep(1)
-        driver.find_element(By.XPATH, '//*[@id="hangup-button"]').click()
-        time.sleep(5)
+        driver.find_element_by_xpath('//*[@id="hangup-button"]').click()
+        #driver.find_element(By.XPATH, '//*[@id="hangup-button"]').click()
+        time.sleep(1)
+
+        #go home
         driver.find_element(By.XPATH, '//*[@id="app-bar-2a84919f-59d8-4441-a975-2a8c2643b741"]').click()
     except:
         txt = f"Could not leave meeting for {sub} on {get_time()}."
         notify(txt, sub)
-        return
+        return False
     # go to home page
     
     txt = f"Left meeting for {sub}, on {get_time()}"
     notify(txt, sub)
-    return
+    return True
 
 
 def main():
