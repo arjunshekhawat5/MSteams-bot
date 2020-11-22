@@ -67,10 +67,6 @@ def main():
     driver.quit()
 
 
-def get_discord_url():
-    return discord_url
-
-
 def get_driver():
     opt = webdriver.ChromeOptions()
     opt.add_argument("--disable-infobars")
