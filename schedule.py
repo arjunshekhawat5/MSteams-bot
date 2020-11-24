@@ -1,3 +1,9 @@
+from datetime import datetime
+import time
+from discord_notify import notify
+from main import run, time_wait
+
+
 schedule = {
     0: [
         [
@@ -39,17 +45,50 @@ schedule = {
             12
         ]
     ],
-    'test': [
-        [
-            "Azad",
-            11,
-            13
-        ]
+    'test':[
+            [
+                "Azad", 
+                13, 
+                14
+            ],
+            [
+                "Biomolecular NMR", 
+                13, 
+                14
+            ]
     ],
     5: [],
     6: []
 }
 
 
-def classes(day):
-    return schedule[day]
+def scheduler():
+    #day = datetime.now().weekday()
+    #testcase
+    day = 'test'
+    
+    if day:
+        schedule_today = schedule[day]
+        start = schedule_today[0][1]
+        if start > datetime.now().hour:
+            txt = f"Waiting for the first class to start at {start}"
+            notify(txt)
+            print(txt)
+            #time.sleep(time_wait(start))
+            run(schedule_today)
+        else:
+            txt = "Start time already passed for the first class"
+            notify(txt)
+            print(txt)
+    else:
+        txt = 'No classes scheduled for today!'
+        # notify on discord
+        notify(txt)
+        print(txt)
+        return
+
+scheduler()
+
+
+    
+

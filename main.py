@@ -3,32 +3,31 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
 from datetime import date, datetime
-from schedule import classes
 from discord_notify import notify
 from creds import get_email, get_password
+
+
 '''
 PATH = '/home/kali/Downloads/geckodriver'
 driver = webdriver.Firefox(executable_path=PATH)
 '''
+# if on windows set PATH = False and 
+# download chromedriver and add it to your windows PATH
+PATH = False
 
-# if on windows set PATH = None and download chromedriver and add it to your windows PATH
-PATH = '/home/arjun/Downloads/chromedriver'
+#if on linux download chhromedriver or any other webbdriver
+# and give it's path to the path variable
+#PATH = '/home/arjun/Downloads/chromedriver'
+
 url = "https://teams.microsoft.com/"
 
 
-def main():
+def run(schedule_today):
     global driver
-    day = get_day()
-    schedule_today = classes(day)
+    #day = get_day()
     #testcase
-    schedule_today = [["Biomolecular NMR", 11, 12],['Azad', 10, 11]]
+    #schedule_today = [["Biomolecular NMR", 11, 12],['Azad', 10, 11]]
 
-    if not schedule_today:
-        txt = 'No classes scheduled for today!'
-        # notify on discord
-        notify(txt, "Any subject")
-        print(txt)
-        return
     
     #get web driver and open browser    
     driver = get_driver()
@@ -46,20 +45,30 @@ def main():
         sub = event[0]
         start_time, end_time = event[1], event[2]
         #duration in seconds
-        duration = (end_time - start_time)*30
-        print(sub)
+        #duration = (end_time - start_time)*3600
+        
+        print("Trying to join class for " + sub)
         joined = join(sub)
         #notify_status('Join',c[0], status)
+        
         if not joined:
             if i == len(schedule_today) - 1:
-                print("No more classes today!")
+                txt = "No more classes today!"
+                notify(txt)
+                print(txt)
                 return
             # calculate waiting time for next class in our schedule
-            wait_time = schedule_today[i+1][1] - start_time - 15
-            print(f'Goint to wait for {wait_time} minutes.')
-            time.sleep(wait_time*60)
+            #wait_time_minutes = (schedule_today[i+1][1] - start_time)*60 - 15
+            wait = time_wait(schedule_today[i+1][1])
+            txt = f'Goint to wait for {int(wait/60)} minutes for next class.'
+            notify(txt)
+            print(txt)
+            time.sleep(wait)
             continue
         else:
+            duration = time_wait(end_time)
+            txt = f"Waiting {int(duration/60)} minutes for class of {sub} to end..."
+            notify(txt, sub)
             time.sleep(duration)
 
         leave_class(sub)
@@ -97,7 +106,16 @@ def get_day():
 
 
 def get_time():
-    return datetime.now().time()
+    return datetime.now().strftime("%I:%M %p")
+
+def time_wait(t):
+    time_now = datetime.now()
+    y = time_now.year
+    m = time_now.month
+    d = time_now.day
+    t = datetime(y, m, d, t)
+    time_delta = t - time_now
+    return time_delta.total_seconds()
 
 
 def login():
@@ -199,10 +217,6 @@ def leave_class(sub):
         notify(txt, sub)
         return False
     
-    txt = f"Left meeting for {sub}, on {get_time()}"
+    txt = f"Left meeting for {sub}, on {get_time()}."
     notify(txt, sub)
     return
-
-
-
-main()
