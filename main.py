@@ -11,8 +11,14 @@ PATH = '/home/kali/Downloads/geckodriver'
 driver = webdriver.Firefox(executable_path=PATH)
 '''
 
-# if on windows set PATH = None and download chromedriver and add it to your windows PATH
-PATH = '/home/arjun/Downloads/chromedriver'
+# if on windows set PATH = False and 
+# download chromedriver and add it to your windows PATH
+PATH = False
+
+#if on linux download chhromedriver or any other webbdriver
+# and give it's path to the path variable
+#PATH = '/home/arjun/Downloads/chromedriver'
+
 url = "https://teams.microsoft.com/"
 
 
@@ -21,7 +27,7 @@ def main():
     day = get_day()
     schedule_today = classes(day)
     #testcase
-    schedule_today = [["Biomolecular NMR", 11, 12],['Azad', 10, 11]]
+    #schedule_today = [["Biomolecular NMR", 11, 12],['Azad', 10, 11]]
 
     if not schedule_today:
         txt = 'No classes scheduled for today!'
@@ -46,8 +52,8 @@ def main():
         sub = event[0]
         start_time, end_time = event[1], event[2]
         #duration in seconds
-        duration = (end_time - start_time)*30
-        print(sub)
+        duration = (end_time - start_time)*3600
+        print("Trying to join class for " + sub)
         joined = join(sub)
         #notify_status('Join',c[0], status)
         if not joined:
@@ -60,6 +66,7 @@ def main():
             time.sleep(wait_time*60)
             continue
         else:
+            print(f"waiting for {duration} seconds")
             time.sleep(duration)
 
         leave_class(sub)
@@ -138,9 +145,9 @@ def join_button():
             return True
         except:
             t -= 1
-            driver.refresh()
             print('Waiting for class to start....')
             time.sleep(60)
+            driver.refresh()
     return False
 
 
