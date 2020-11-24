@@ -81,6 +81,7 @@ def get_driver():
     opt.add_argument("--disable-infobars")
     opt.add_argument("start-maximized")
     opt.add_argument("--disable-extensions")
+    opt.add_experimental_option('excludeSwitches', ['enable-logging'])
     #this option uses headless browser
     ##opt.add_argument("headless")  
 
@@ -92,7 +93,6 @@ def get_driver():
         "profile.default_content_setting_values.geolocation": 1,
         "profile.default_content_setting_values.notifications": 1
     },)
-    opt.add_experimental_option('excludeSwitches', ['enable-logging'])
     if not PATH:
         driver = webdriver.Chrome(options=opt)
     else:
