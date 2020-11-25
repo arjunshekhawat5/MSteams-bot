@@ -10,10 +10,10 @@
 <ul>
   <li>Step 1 - Create a file with name creds.txt and move it into the MSteams-bot directory.</li>
   <li>step 2 - In creds.txt file enter the following information:
-        <ol>
+        <ul>
         <li>In line 1, enter your MS-Teams login email address.</li>
         <li>In line 2, enter yout MS-Teams password. </li>
         <li>In line 3, enter your discord webhook URL check further below where it is explained how to get thi URL </li>
-        </ol>
+        </ul>
     </li>
 </ul>
