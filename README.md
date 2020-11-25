@@ -16,7 +16,7 @@
     <li>In creds.txt file enter the following information:
     <li>In line 1, enter your MS-Teams login email address.</li>
     <li>In line 2, enter yout MS-Teams password. </li>
-    <li>In line 3, enter your discord webhook URL check further below where it is explained how to get thi URL </li>
+    <li>In line 3, enter your discord webhook URL check further below where it is explained how to get this URL </li>
     <li>Save your creds.txt file</li>
     </li>
 </ul>
