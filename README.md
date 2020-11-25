@@ -1,5 +1,6 @@
 # MSteams_bot
-<h1> Required Downloads </h>
+<h2> Required Downloads </h2>
+
 <ul>
   <li>Web driver for selenium</li>
   <li>Heroku cli </li>
