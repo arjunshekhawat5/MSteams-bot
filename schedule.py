@@ -19,6 +19,7 @@ schedule = {
             11
         ]
     ],
+    
     2: [
         [
             "Biomolecular NMR",
@@ -26,6 +27,7 @@ schedule = {
             12
         ]
     ],
+    
     3: [
         [
             "BTN 457 | Adv. Virology",
@@ -33,6 +35,7 @@ schedule = {
             11
         ]
     ],
+    
     4: [
         [
             "Biomolecular NMR",
@@ -45,36 +48,39 @@ schedule = {
             12
         ]
     ],
+    
+    5: [],
+    
+    6: [],
+    
     'test':[
             [
                 "Azad", 
-                13, 
-                14
+                11, 
+                12
             ],
             [
                 "Biomolecular NMR", 
                 13, 
-                14
+                15
             ]
-    ],
-    5: [],
-    6: []
-}
+    ]           }
 
 
 def scheduler():
-    #day = datetime.now().weekday()
-    #testcase
-    day = 'test'
+    day = datetime.now().weekday()
     
-    if day:
+    #testcase
+    #day = 'test'
+    
+    if day in range(5):
         schedule_today = schedule[day]
         start = schedule_today[0][1]
         if start > datetime.now().hour:
             txt = f"Waiting for the first class to start at {start}"
             notify(txt)
             print(txt)
-            #time.sleep(time_wait(start))
+            time.sleep(time_wait(start))
             run(schedule_today)
         else:
             txt = "Start time already passed for the first class"
@@ -86,6 +92,7 @@ def scheduler():
         notify(txt)
         print(txt)
         return
+
 
 scheduler()
 
